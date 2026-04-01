@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# cc-hive desktop launcher
+# Starts the Next.js server and opens it in the default browser
+
+PORT=3333
+
+# Find the cc-hive project directory
+# 1. Check if CCHIVE_DIR is set
+# 2. Check common locations
+# 3. Check relative to the app bundle (dev mode)
+if [ -n "$CCHIVE_DIR" ] && [ -d "$CCHIVE_DIR" ]; then
+  HIVE_DIR="$CCHIVE_DIR"
+elif [ -f "$HOME/.cc-hive-path" ]; then
+  HIVE_DIR="$(cat "$HOME/.cc-hive-path")"
+elif [ -d "$HOME/cc-hive" ]; then
+  HIVE_DIR="$HOME/cc-hive"
+elif [ -d "$HOME/hive" ] && [ -f "$HOME/hive/package.json" ]; then
+  HIVE_DIR="$HOME/hive"
+else
+  # Try relative to app bundle (works when app is inside the project)
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  CANDIDATE="$(cd "$SCRIPT_DIR/../../.." 2>/dev/null && pwd)"
+  if [ -f "$CANDIDATE/package.json" ] && grep -q "cc-hive" "$CANDIDATE/package.json" 2>/dev/null; then
+    HIVE_DIR="$CANDIDATE"
+  else
+    osascript -e 'display alert "cc-hive" message "Could not find the cc-hive project directory. Create ~/.cc-hive-path with the path to your cc-hive installation." as critical'
+    exit 1
+  fi
+fi
+
+# Check if cc-hive is already running on this port
+if curl -s "http://localhost:$PORT" > /dev/null 2>&1; then
+  open "http://localhost:$PORT"
+  exit 0
+fi
+
+# Find node
+export PATH="/usr/local/bin:/opt/homebrew/bin:$HOME/.nvm/versions/node/$(ls "$HOME/.nvm/versions/node/" 2>/dev/null | tail -1)/bin:$PATH"
+
+if ! command -v node &> /dev/null; then
+  osascript -e 'display alert "cc-hive" message "Node.js is required but not found. Install it from nodejs.org" as critical'
+  exit 1
+fi
+
+cd "$HIVE_DIR" || exit 1
+
+# Install deps if needed
+if [ ! -d "node_modules" ]; then
+  npm install 2>&1
+fi
+
+# Build if needed
+if [ ! -d ".next" ]; then
+  osascript -e 'display notification "Building cc-hive for first run..." with title "cc-hive"'
+  npm run build 2>&1
+fi
+
+# Start server in background
+npx next start -p $PORT &
+SERVER_PID=$!
+
+# Wait for server to be ready
+for i in $(seq 1 30); do
+  if curl -s "http://localhost:$PORT" > /dev/null 2>&1; then
+    break
+  fi
+  sleep 0.5
+done
+
+# Open in browser
+open "http://localhost:$PORT"
+
+# Keep alive — when the app is quit, kill the server
+trap "kill $SERVER_PID 2>/dev/null" EXIT
+wait $SERVER_PID
