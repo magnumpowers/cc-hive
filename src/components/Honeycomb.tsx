@@ -25,7 +25,7 @@ function packCircles(
       const angles = 36;
       for (let i = 0; i < angles; i++) {
         const angle = (i / angles) * Math.PI * 2;
-        const dist = existing.radius + item.radius + 12;
+        const dist = existing.radius + item.radius + 18;
         const x = existing.x + Math.cos(angle) * dist;
         const y = existing.y + Math.sin(angle) * dist;
 
@@ -33,7 +33,7 @@ function packCircles(
         for (const other of placed) {
           const dx = x - other.x;
           const dy = y - other.y;
-          const minDist = item.radius + other.radius + 10;
+          const minDist = item.radius + other.radius + 16;
           if (dx * dx + dy * dy < minDist * minDist) {
             valid = false;
             break;
@@ -325,32 +325,21 @@ export default function Honeycomb() {
         onTouchMove={handleTouchMove}
         onTouchEnd={() => (lastTouches.current = null)}
       >
-        {/* HUD overlay */}
-        <div className="absolute top-6 left-6 z-30 pointer-events-none">
-          <h1 className="text-2xl font-bold tracking-tight">
-            <span className="text-amber-400">&#x2B21;</span> cc-hive
+        {/* HUD — minimal */}
+        <div className="absolute top-5 left-6 z-30 pointer-events-none">
+          <h1 className="text-lg font-bold tracking-tight text-[#4a4a5a]">
+            <span className="text-amber-400/60">&#x2B21;</span> cc-hive
           </h1>
-          <p className="text-[#6b6b80] text-xs mt-1">
-            {projects.length} projects &middot;{" "}
-            {projects.filter((p) => p.isActive).length} running
-          </p>
         </div>
 
-        {/* Search & Cron */}
-        <div className="absolute top-6 right-6 z-30 pointer-events-auto flex items-center gap-2">
-          <button
-            onClick={() => setShowCron(true)}
-            className="px-3 py-1.5 text-xs text-cyan-400/70 bg-[#12121a] border border-[#2a2a3a] rounded-lg hover:border-cyan-500/30 hover:text-cyan-400 transition-colors"
-            title="Scheduled jobs"
-          >
-            &#x21BB; Cron
-          </button>
+        {/* Search — top center */}
+        <div className="absolute top-5 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
           {showSearch ? (
             <input
               ref={searchRef}
               autoFocus
               type="text"
-              placeholder="Search projects..."
+              placeholder="Search..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => {
@@ -359,7 +348,7 @@ export default function Honeycomb() {
                   setSearch("");
                 }
               }}
-              className="w-64 px-3 py-1.5 text-sm bg-[#12121a] border border-[#2a2a3a] rounded-lg focus:border-amber-500/40 outline-none"
+              className="w-72 px-4 py-2 text-sm bg-[#12121a]/90 backdrop-blur border border-[#2a2a3a] rounded-full focus:border-amber-500/30 outline-none text-center"
             />
           ) : (
             <button
@@ -367,57 +356,43 @@ export default function Honeycomb() {
                 setShowSearch(true);
                 setTimeout(() => searchRef.current?.focus(), 50);
               }}
-              className="px-3 py-1.5 text-xs text-[#6b6b80] bg-[#12121a] border border-[#2a2a3a] rounded-lg hover:border-[#4a4a5a] transition-colors"
+              className="px-4 py-2 text-xs text-[#4a4a5a] bg-[#12121a]/60 border border-[#1e1e2e] rounded-full hover:border-[#3a3a4a] hover:text-[#6b6b80] transition-colors"
             >
-              Search <kbd className="ml-1 text-[10px] text-[#4a4a5a]">&#8984;K</kbd>
+              Search <kbd className="ml-1 text-[10px] text-[#3a3a4a]">&#8984;K</kbd>
             </button>
           )}
         </div>
 
-        {/* Legend */}
-        <div className="absolute bottom-6 left-6 z-30 pointer-events-none">
-          <div className="flex items-center gap-3 text-[10px] text-[#4a4a5a]">
-            <span className="flex items-center gap-1">
-              <span className="inline-block w-3 h-3 rounded-full border border-[#2a2a3a] bg-[#12121a]" />
-              small
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="inline-block w-5 h-5 rounded-full border border-[#2a2a3a] bg-[#12121a]" />
-              large
-            </span>
-            <span className="text-[#3a3a4a]">= amount of code</span>
-          </div>
+        {/* Cron — top right, subtle */}
+        <div className="absolute top-5 right-6 z-30 pointer-events-auto">
+          <button
+            onClick={() => setShowCron(true)}
+            className="px-3 py-2 text-xs text-[#4a4a5a] hover:text-amber-400/70 transition-colors"
+            title="Scheduled jobs"
+          >
+            &#x21BB;
+          </button>
         </div>
 
-        {/* Zoom controls */}
-        <div className="absolute bottom-6 right-6 z-30 flex flex-col gap-1">
+        {/* Zoom — bottom right, minimal */}
+        <div className="absolute bottom-5 right-6 z-30 flex items-center gap-1 pointer-events-auto">
           <button
             aria-label="Zoom in"
-            className="w-8 h-8 bg-[#12121a] border border-[#2a2a3a] rounded text-[#6b6b80] hover:text-white hover:border-[#4a4a5a] text-lg leading-none pointer-events-auto"
-            onClick={() =>
-              setCamera((prev) => ({
-                ...prev,
-                zoom: Math.min(3, prev.zoom * 1.3),
-              }))
-            }
+            className="w-7 h-7 bg-[#12121a]/60 border border-[#1e1e2e] rounded text-[#4a4a5a] hover:text-[#8b8ba0] text-sm leading-none"
+            onClick={() => setCamera((prev) => ({ ...prev, zoom: Math.min(3, prev.zoom * 1.3) }))}
           >
             +
           </button>
           <button
             aria-label="Zoom out"
-            className="w-8 h-8 bg-[#12121a] border border-[#2a2a3a] rounded text-[#6b6b80] hover:text-white hover:border-[#4a4a5a] text-lg leading-none pointer-events-auto"
-            onClick={() =>
-              setCamera((prev) => ({
-                ...prev,
-                zoom: Math.max(0.05, prev.zoom / 1.3),
-              }))
-            }
+            className="w-7 h-7 bg-[#12121a]/60 border border-[#1e1e2e] rounded text-[#4a4a5a] hover:text-[#8b8ba0] text-sm leading-none"
+            onClick={() => setCamera((prev) => ({ ...prev, zoom: Math.max(0.05, prev.zoom / 1.3) }))}
           >
             -
           </button>
           <button
-            aria-label="Fit all projects to screen"
-            className="w-8 h-8 bg-[#12121a] border border-[#2a2a3a] rounded text-[#6b6b80] hover:text-white hover:border-[#4a4a5a] text-[10px] leading-none pointer-events-auto mt-1"
+            aria-label="Fit all"
+            className="w-7 h-7 bg-[#12121a]/60 border border-[#1e1e2e] rounded text-[#4a4a5a] hover:text-[#8b8ba0] text-[9px] leading-none ml-0.5"
             onClick={fitToScreen}
           >
             fit
@@ -442,18 +417,6 @@ export default function Honeycomb() {
         >
           {/* Center anchor — all cells positioned relative to viewport center */}
           <div className="absolute" style={{ left: "50%", top: "50%" }}>
-            <div
-              className="absolute pointer-events-none"
-              style={{
-                width: 3000,
-                height: 3000,
-                left: -1500,
-                top: -1500,
-                backgroundImage:
-                  "radial-gradient(circle, #1a1a2a 1px, transparent 1px)",
-                backgroundSize: "40px 40px",
-              }}
-            />
 
             {layout.map(({ project, radius, x, y }) => (
               <div

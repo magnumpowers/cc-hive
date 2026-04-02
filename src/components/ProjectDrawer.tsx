@@ -8,11 +8,9 @@ function formatLoc(n: number): string {
   return `${n}`;
 }
 
-const LAUNCH_COMMANDS = [
-  { key: "claude", label: "Claude Code", icon: "\u2B21", color: "amber", description: null },
-  { key: "claude-hierarchical", label: "Claude Code (skip permissions)", icon: "\u2B21", color: "amber", description: "--dangerously-skip-permissions" },
-  { key: "code", label: "VS Code", icon: "\u270E", color: "blue", description: null },
-  { key: "cursor", label: "Cursor", icon: "\u270E", color: "purple", description: null },
+const EDITORS = [
+  { key: "code", label: "VS Code" },
+  { key: "cursor", label: "Cursor" },
 ];
 
 export default function ProjectDrawer({
@@ -176,26 +174,17 @@ export default function ProjectDrawer({
             </button>
           </div>
 
-          {/* Status badges */}
-          <div className="flex flex-wrap gap-2 mb-6">
+          {/* Status — single line */}
+          <div className="flex flex-wrap items-center gap-2 mb-6 text-[11px] text-[#6b6b80]">
             {project.isActive && (
-              <span className="px-2 py-1 text-[10px] font-semibold bg-green-500/15 text-green-400 rounded-full border border-green-500/30">
-                Running now
+              <span className="text-green-400 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400" /> Running
               </span>
             )}
             {project.deliverable?.framework && (
-              <span className="px-2 py-1 text-[10px] font-semibold bg-blue-500/10 text-blue-400 rounded-full border border-blue-500/25">
-                {project.deliverable.framework}
-              </span>
+              <span>{project.deliverable.framework}</span>
             )}
-            <span className="px-2 py-1 text-[10px] font-semibold bg-amber-500/10 text-amber-400 rounded-full border border-amber-500/25">
-              {formatLoc(project.linesOfCode)} lines of code
-            </span>
-            {project.sessionCount > 0 && (
-              <span className="px-2 py-1 text-[10px] font-semibold bg-[#1a1a28] text-[#6b6b80] rounded-full border border-[#2a2a3a]">
-                Used {project.sessionCount} times
-              </span>
-            )}
+            <span>{formatLoc(project.linesOfCode)} lines</span>
           </div>
 
           {/* Deliverable section */}
@@ -293,95 +282,69 @@ export default function ProjectDrawer({
             </div>
           )}
 
-          {/* Launch section */}
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-[#6b6b80] uppercase tracking-wider mb-3">
-              Launch
-            </h3>
-            <div className="space-y-2">
-              {LAUNCH_COMMANDS.map((cmd) => (
-                <button
-                  key={cmd.key}
-                  onClick={() => launchProject(cmd.key)}
-                  disabled={launching}
-                  className={`w-full text-left px-4 py-3 text-sm rounded-lg border transition-colors disabled:opacity-50 ${
-                    cmd.key.startsWith("claude")
-                      ? "bg-amber-500/10 border-amber-500/25 hover:border-amber-500/50 hover:bg-amber-500/15"
-                      : cmd.color === "blue"
-                      ? "bg-[#12121a] border-[#2a2a3a] hover:border-blue-500/30 hover:bg-blue-500/5"
-                      : "bg-[#12121a] border-[#2a2a3a] hover:border-purple-500/30 hover:bg-purple-500/5"
-                  }`}
-                >
-                  <span className={`mr-2 ${cmd.color === "amber" ? "text-amber-400" : cmd.color === "blue" ? "text-blue-400" : "text-purple-400"}`}>
-                    {cmd.icon}
-                  </span>
-                  {launching ? "Launching..." : cmd.label}
-                  {cmd.description && (
-                    <span className="block text-[10px] text-[#6b6b80] mt-0.5 ml-5">
-                      {cmd.description}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent sessions */}
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-[#6b6b80] uppercase tracking-wider mb-3">
-              Recent activity
-            </h3>
-            {project.recentSessions.length === 0 ? (
-              <p className="text-[#4a4a5a] text-sm">No recent activity</p>
-            ) : (
-              <div className="space-y-2">
-                {project.recentSessions.map((session) => (
-                  <div
-                    key={session.sessionId}
-                    className="bg-[#12121a] rounded-lg p-3 border border-[#2a2a3a]"
-                  >
-                    <p className="text-sm leading-snug line-clamp-2">
-                      {session.summary || session.firstPrompt || "No details"}
-                    </p>
-                    <div className="flex items-center gap-3 mt-2 text-[10px] text-[#6b6b80]">
-                      <span>
-                        {new Date(session.modified).toLocaleDateString()}
-                      </span>
-                      <span>{session.messageCount} exchanges</span>
-                      {session.gitBranch && <span>{session.gitBranch}</span>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Quick actions */}
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-[#6b6b80] uppercase tracking-wider mb-3">
-              Shortcuts
-            </h3>
-            <div className="space-y-2">
+          {/* Open */}
+          <div className="mb-6 space-y-2">
+            <div className="flex gap-2">
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(`cd ${project.path} && claude`);
-                }}
-                className="w-full text-left px-3 py-2 text-sm bg-[#12121a] rounded-lg border border-[#2a2a3a] hover:border-amber-500/30 hover:bg-amber-500/5 transition-colors"
+                onClick={() => launchProject("claude")}
+                disabled={launching}
+                className="flex-1 text-left px-4 py-3 text-sm bg-amber-500/10 rounded-lg border border-amber-500/25 hover:border-amber-500/50 hover:bg-amber-500/15 transition-colors disabled:opacity-50"
               >
-                <span className="text-amber-400 mr-2">$</span>
-                Copy: cd + claude
+                <span className="text-amber-400 mr-2">&#x2B21;</span>
+                {launching ? "Opening..." : "Claude Code"}
               </button>
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(project.path);
-                }}
-                className="w-full text-left px-3 py-2 text-sm bg-[#12121a] rounded-lg border border-[#2a2a3a] hover:border-[#4a4a5a] transition-colors"
+                onClick={() => launchProject("claude-hierarchical")}
+                disabled={launching}
+                className="px-3 py-3 text-[10px] text-amber-400/60 bg-amber-500/5 rounded-lg border border-amber-500/15 hover:border-amber-500/40 hover:text-amber-400 transition-colors disabled:opacity-50 leading-tight"
+                title="claude --dangerously-skip-permissions"
               >
-                <span className="text-[#6b6b80] mr-2">&#x2398;</span>
+                Skip<br />perms
+              </button>
+            </div>
+
+            <div className="flex gap-2">
+              {EDITORS.map((ed) => (
+                <button
+                  key={ed.key}
+                  onClick={() => launchProject(ed.key)}
+                  disabled={launching}
+                  className="flex-1 text-center px-3 py-2 text-xs text-[#6b6b80] bg-[#12121a] rounded-lg border border-[#1e1e2e] hover:border-[#3a3a4a] hover:text-[#9b9bab] transition-colors disabled:opacity-50"
+                >
+                  {ed.label}
+                </button>
+              ))}
+              <button
+                onClick={() => navigator.clipboard.writeText(project.path)}
+                className="px-3 py-2 text-xs text-[#4a4a5a] bg-[#12121a] rounded-lg border border-[#1e1e2e] hover:border-[#3a3a4a] hover:text-[#6b6b80] transition-colors"
+                title="Copy path"
+              >
                 Copy path
               </button>
             </div>
           </div>
+
+          {/* Recent activity — collapsed */}
+          {project.recentSessions.length > 0 && (
+            <div className="mb-6">
+              <p className="text-[11px] text-[#4a4a5a] mb-2">Recent activity</p>
+              <div className="space-y-1.5">
+                {project.recentSessions.slice(0, 2).map((session) => (
+                  <div
+                    key={session.sessionId}
+                    className="text-xs text-[#6b6b80] bg-[#0e0e16] rounded px-3 py-2 border border-[#1a1a28]"
+                  >
+                    <span className="line-clamp-1">
+                      {session.summary || session.firstPrompt || "No details"}
+                    </span>
+                    <span className="text-[10px] text-[#4a4a5a] mt-0.5 block">
+                      {new Date(session.modified).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Danger zone */}
           <div className="border-t border-[#2a2a3a] pt-6">
