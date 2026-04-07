@@ -1,4 +1,4 @@
-# cc-hive
+# Hive
 
 Visual dashboard for all your Claude Code projects.
 
@@ -28,17 +28,17 @@ Then open [http://localhost:3000](http://localhost:3000).
 
 ### macOS desktop app
 
-You can also install cc-hive as a standalone app in your dock:
+You can also install Hive as a standalone app in your dock:
 
 ```bash
 bash desktop/install.sh
 ```
 
-This installs `cc-hive.app` to `~/Applications`. Open it from Spotlight, Launchpad, or your dock — it starts the server automatically and opens your browser.
+This installs `Hive.app` to `~/Applications`. Open it from Spotlight, Launchpad, or your dock — it starts the server automatically and opens your browser.
 
 ## How it works
 
-cc-hive reads Claude Code session data from `~/.claude/projects/` and scans your project directories to build a visual map. It runs **entirely locally** — no data leaves your machine.
+Hive reads Claude Code session data from `~/.claude/projects/` and scans your project directories to build a visual map. It runs **entirely locally** — no data leaves your machine.
 
 ### What it reads
 

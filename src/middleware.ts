@@ -7,7 +7,7 @@ export function middleware(req: NextRequest) {
   const host = req.headers.get("host")?.split(":")[0] || "";
   if (!ALLOWED_HOSTS.has(host)) {
     return NextResponse.json(
-      { error: "cc-hive only accepts connections from localhost" },
+      { error: "Hive only accepts connections from localhost" },
       { status: 403 }
     );
   }

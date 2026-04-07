@@ -16,7 +16,7 @@ if (isNaN(port) || port < 1 || port > 65535) {
   process.exit(1);
 }
 
-console.log(`\n  \x1b[33m⬡\x1b[0m cc-hive — Visual dashboard for Claude Code\n`);
+console.log(`\n  \x1b[33m⬡\x1b[0m Hive — Visual dashboard for Claude Code\n`);
 
 // Build if needed
 const nextDir = resolve(root, ".next");

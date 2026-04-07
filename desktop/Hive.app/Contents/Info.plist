@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
   <key>CFBundleName</key>
-  <string>cc-hive</string>
+  <string>Hive</string>
   <key>CFBundleDisplayName</key>
-  <string>cc-hive</string>
+  <string>Hive</string>
   <key>CFBundleIdentifier</key>
-  <string>com.cc-hive.app</string>
+  <string>com.hive-dashboard.app</string>
   <key>CFBundleVersion</key>
   <string>0.1.0</string>
   <key>CFBundleShortVersionString</key>

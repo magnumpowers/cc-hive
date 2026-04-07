@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# cc-hive desktop launcher
+# Hive desktop launcher
 # Starts the Next.js server and opens it in the default browser
 
 PORT=3333
@@ -11,6 +11,8 @@ PORT=3333
 # 3. Check relative to the app bundle (dev mode)
 if [ -n "$CCHIVE_DIR" ] && [ -d "$CCHIVE_DIR" ]; then
   HIVE_DIR="$CCHIVE_DIR"
+elif [ -f "$HOME/.hive-path" ]; then
+  HIVE_DIR="$(cat "$HOME/.hive-path")"
 elif [ -f "$HOME/.cc-hive-path" ]; then
   HIVE_DIR="$(cat "$HOME/.cc-hive-path")"
 elif [ -d "$HOME/cc-hive" ]; then
@@ -24,7 +26,7 @@ else
   if [ -f "$CANDIDATE/package.json" ] && grep -q "cc-hive" "$CANDIDATE/package.json" 2>/dev/null; then
     HIVE_DIR="$CANDIDATE"
   else
-    osascript -e 'display alert "cc-hive" message "Could not find the cc-hive project directory. Create ~/.cc-hive-path with the path to your cc-hive installation." as critical'
+    osascript -e 'display alert "Hive" message "Could not find the Hive project directory. Create ~/.cc-hive-path with the path to your Hive installation." as critical'
     exit 1
   fi
 fi
@@ -39,7 +41,7 @@ fi
 export PATH="/usr/local/bin:/opt/homebrew/bin:$HOME/.nvm/versions/node/$(ls "$HOME/.nvm/versions/node/" 2>/dev/null | tail -1)/bin:$PATH"
 
 if ! command -v node &> /dev/null; then
-  osascript -e 'display alert "cc-hive" message "Node.js is required but not found. Install it from nodejs.org" as critical'
+  osascript -e 'display alert "Hive" message "Node.js is required but not found. Install it from nodejs.org" as critical'
   exit 1
 fi
 
@@ -52,7 +54,7 @@ fi
 
 # Build if needed
 if [ ! -d ".next" ]; then
-  osascript -e 'display notification "Building cc-hive for first run..." with title "cc-hive"'
+  osascript -e 'display notification "Building Hive for first run..." with title "Hive"'
   npm run build 2>&1
 fi
 

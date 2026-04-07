@@ -289,7 +289,7 @@ export default function Honeycomb() {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center max-w-md px-6">
           <h1 className="text-3xl font-bold mb-2">
-            <span className="text-amber-400">&#x2B21;</span> cc-hive
+            <span className="text-amber-400">&#x2B21;</span> Hive
           </h1>
           <p className="text-[#6b6b80] text-sm mb-6">
             No Claude Code projects found.
@@ -300,7 +300,7 @@ export default function Honeycomb() {
               cd ~/my-project && claude
             </code>
             <p className="text-xs text-[#4a4a5a] mt-3">
-              cc-hive reads session data from <code className="text-[#6b6b80]">~/.claude/projects/</code>
+              Hive reads session data from <code className="text-[#6b6b80]">~/.claude/projects/</code>
             </p>
           </div>
           {error && (
@@ -325,52 +325,50 @@ export default function Honeycomb() {
         onTouchMove={handleTouchMove}
         onTouchEnd={() => (lastTouches.current = null)}
       >
-        {/* HUD — minimal */}
-        <div className="absolute top-5 left-6 z-30 pointer-events-none">
-          <h1 className="text-lg font-bold tracking-tight text-[#4a4a5a]">
-            <span className="text-amber-400/60">&#x2B21;</span> cc-hive
+        {/* HUD + Search — top left */}
+        <div className="absolute top-5 left-6 z-30 flex items-center gap-4">
+          <h1 className="text-lg font-bold tracking-tight text-[#4a4a5a] pointer-events-none">
+            <span className="text-amber-400/60">&#x2B21;</span> Hive
           </h1>
-        </div>
-
-        {/* Search — top center */}
-        <div className="absolute top-5 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
-          {showSearch ? (
-            <input
-              ref={searchRef}
-              autoFocus
-              type="text"
-              placeholder="Search..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  setShowSearch(false);
-                  setSearch("");
-                }
-              }}
-              className="w-72 px-4 py-2 text-sm bg-[#12121a]/90 backdrop-blur border border-[#2a2a3a] rounded-full focus:border-amber-500/30 outline-none text-center"
-            />
-          ) : (
-            <button
-              onClick={() => {
-                setShowSearch(true);
-                setTimeout(() => searchRef.current?.focus(), 50);
-              }}
-              className="px-4 py-2 text-xs text-[#4a4a5a] bg-[#12121a]/60 border border-[#1e1e2e] rounded-full hover:border-[#3a3a4a] hover:text-[#6b6b80] transition-colors"
-            >
-              Search <kbd className="ml-1 text-[10px] text-[#3a3a4a]">&#8984;K</kbd>
-            </button>
-          )}
+          <div className="pointer-events-auto">
+            {showSearch ? (
+              <input
+                ref={searchRef}
+                autoFocus
+                type="text"
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    setShowSearch(false);
+                    setSearch("");
+                  }
+                }}
+                className="w-56 px-3 py-1.5 text-sm bg-[#12121a]/90 backdrop-blur border border-[#2a2a3a] rounded-lg focus:border-amber-500/30 outline-none"
+              />
+            ) : (
+              <button
+                onClick={() => {
+                  setShowSearch(true);
+                  setTimeout(() => searchRef.current?.focus(), 50);
+                }}
+                className="px-3 py-1.5 text-xs text-[#4a4a5a] bg-[#12121a]/60 border border-[#1e1e2e] rounded-lg hover:border-[#3a3a4a] hover:text-[#6b6b80] transition-colors"
+              >
+                Search <kbd className="ml-1 text-[10px] text-[#3a3a4a]">&#8984;K</kbd>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Cron — top right, subtle */}
         <div className="absolute top-5 right-6 z-30 pointer-events-auto">
           <button
             onClick={() => setShowCron(true)}
-            className="px-3 py-2 text-xs text-[#4a4a5a] hover:text-amber-400/70 transition-colors"
+            className="px-3 py-1.5 text-xs text-[#6b6b80] bg-[#12121a] border border-[#2a2a3a] rounded-lg hover:border-amber-500/30 hover:text-amber-400 transition-colors"
             title="Scheduled jobs"
           >
-            &#x21BB;
+            &#x21BB; Cron
           </button>
         </div>
 

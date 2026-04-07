@@ -39,12 +39,6 @@ export default function HexCell({
       className={`hex-cell relative border flex flex-col items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:ring-offset-0 ${cellColor(project)} ${project.isActive ? "active" : activityLevel(project.lastActivity) >= 2 ? "recent" : ""}`}
       style={{ width: size, height: size * 1.1 }}
     >
-      {project.isActive && (
-        <div className="absolute" style={{ top: size * 0.12, right: size * 0.18 }}>
-          <div className="activity-dot" />
-        </div>
-      )}
-
       <span
         className="font-semibold text-center px-3 leading-tight"
         style={{
@@ -54,6 +48,15 @@ export default function HexCell({
       >
         {project.displayName}
       </span>
+
+      {project.isActive && (
+        <span
+          className="text-green-400/80 uppercase tracking-wider mt-1"
+          style={{ fontSize: Math.max(7, size * 0.055) }}
+        >
+          Active
+        </span>
+      )}
     </button>
   );
 }

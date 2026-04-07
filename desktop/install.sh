@@ -1,17 +1,17 @@
 #!/bin/bash
-# Install cc-hive as a macOS app
+# Install Hive as a macOS app
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-APP_SRC="$SCRIPT_DIR/cc-hive.app"
-APP_DEST="$HOME/Applications/cc-hive.app"
+APP_SRC="$SCRIPT_DIR/Hive.app"
+APP_DEST="$HOME/Applications/Hive.app"
 
 echo ""
-echo "  ⬡ Installing cc-hive..."
+echo "  ⬡ Installing Hive..."
 echo ""
 
 # Save project path so the app can find it
-echo "$PROJECT_DIR" > "$HOME/.cc-hive-path"
+echo "$PROJECT_DIR" > "$HOME/.hive-path"
 
 # Create ~/Applications if it doesn't exist
 mkdir -p "$HOME/Applications"
@@ -30,7 +30,7 @@ xattr -cr "$APP_DEST" 2>/dev/null
 
 echo "  ✓ Installed to $APP_DEST"
 echo "  ✓ Project directory: $PROJECT_DIR"
-echo "  ✓ You can find cc-hive in Spotlight or Launchpad"
+echo "  ✓ You can find Hive in Spotlight or Launchpad"
 echo ""
-echo "  To uninstall: rm -rf '$APP_DEST' ~/.cc-hive-path"
+echo "  To uninstall: rm -rf '$APP_DEST' ~/.hive-path"
 echo ""

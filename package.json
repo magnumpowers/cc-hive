@@ -1,10 +1,10 @@
 {
-  "name": "cc-hive",
+  "name": "hive",
   "version": "0.1.0",
   "description": "Visual dashboard for all your Claude Code projects",
   "license": "MIT",
   "bin": {
-    "cc-hive": "./bin/cli.mjs"
+    "hive": "./bin/cli.mjs"
   },
   "scripts": {
     "dev": "next dev",
