@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { spawn } from "child_process";
 import fs from "fs";
+import os from "os";
 
 export const dynamic = "force-dynamic";
 
@@ -70,11 +71,16 @@ function launchWindows(projectPath: string, shell: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const { path: projectPath, command } = await req.json();
+  const { path: rawPath, command } = await req.json();
 
-  if (!projectPath || typeof projectPath !== "string") {
+  if (!rawPath || typeof rawPath !== "string") {
     return NextResponse.json({ error: "path required" }, { status: 400 });
   }
+
+  const projectPath =
+    rawPath === "~" || rawPath.startsWith("~/")
+      ? os.homedir() + rawPath.slice(1)
+      : rawPath;
 
   if (!fs.existsSync(projectPath)) {
     return NextResponse.json({ error: "path not found" }, { status: 404 });

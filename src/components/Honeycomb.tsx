@@ -64,6 +64,26 @@ export default function Honeycomb() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [launchingNew, setLaunchingNew] = useState(false);
+
+  async function startNewSession(commandKey: "claude" | "claude-hierarchical") {
+    setLaunchingNew(true);
+    try {
+      const res = await fetch("/api/projects/launch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: "~", command: commandKey }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Failed to start session");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to start session");
+    } finally {
+      setLaunchingNew(false);
+    }
+  }
 
   // Pan & zoom state
   const [camera, setCamera] = useState({ x: 0, y: 0, zoom: 1 });
@@ -361,8 +381,27 @@ export default function Honeycomb() {
           </div>
         </div>
 
-        {/* Cron — top right, subtle */}
-        <div className="absolute top-5 right-6 z-30 pointer-events-auto">
+        {/* New session + Cron — top right */}
+        <div className="absolute top-5 right-6 z-30 flex items-center gap-2 pointer-events-auto">
+          <div className="flex">
+            <button
+              onClick={() => startNewSession("claude")}
+              disabled={launchingNew}
+              className="px-3 py-1.5 text-xs font-medium text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-l-lg hover:bg-amber-500/15 hover:border-amber-500/50 transition-colors disabled:opacity-50"
+              title="Start a new Claude Code session in your home directory"
+            >
+              <span className="mr-1">&#x2B21;</span>
+              {launchingNew ? "Opening..." : "New session"}
+            </button>
+            <button
+              onClick={() => startNewSession("claude-hierarchical")}
+              disabled={launchingNew}
+              className="px-2 py-1.5 text-[10px] text-amber-400/70 bg-amber-500/5 border border-l-0 border-amber-500/30 rounded-r-lg hover:bg-amber-500/15 hover:text-amber-400 hover:border-amber-500/50 transition-colors disabled:opacity-50"
+              title="claude --dangerously-skip-permissions"
+            >
+              Skip perms
+            </button>
+          </div>
           <button
             onClick={() => setShowCron(true)}
             className="px-3 py-1.5 text-xs text-[#6b6b80] bg-[#12121a] border border-[#2a2a3a] rounded-lg hover:border-amber-500/30 hover:text-amber-400 transition-colors"
