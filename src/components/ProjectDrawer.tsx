@@ -71,6 +71,24 @@ export default function ProjectDrawer({
     onDeleted?.();
   }
 
+  async function focusSession() {
+    if (!project.activePid) return;
+    setLaunching(true);
+    try {
+      const res = await fetch("/api/projects/launch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command: "focus", pid: project.activePid }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.error("Focus failed:", data.error);
+      }
+    } finally {
+      setLaunching(false);
+    }
+  }
+
   async function launchProject(commandKey: string) {
     setLaunching(true);
     try {
@@ -284,6 +302,21 @@ export default function ProjectDrawer({
 
           {/* Open */}
           <div className="mb-6 space-y-2">
+            {/* Focus existing session */}
+            {project.isActive && project.activePid && (
+              <button
+                onClick={focusSession}
+                disabled={launching}
+                className="w-full text-left px-4 py-3 text-sm bg-green-500/10 rounded-lg border border-green-500/25 hover:border-green-500/50 hover:bg-green-500/15 transition-colors disabled:opacity-50"
+              >
+                <span className="text-green-400 mr-2">&#x25B6;</span>
+                {launching ? "Focusing..." : "Open in terminal"}
+                <span className="block text-[11px] text-green-400/60 mt-0.5">
+                  Jump to the running session
+                </span>
+              </button>
+            )}
+
             <div className="flex gap-2">
               <button
                 onClick={() => launchProject("claude")}

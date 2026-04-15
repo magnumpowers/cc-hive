@@ -4,8 +4,29 @@
 # Starts the Next.js server and opens it in the default browser
 
 PORT=3333
+LOCKFILE="/tmp/hive-launcher.lock"
 
-# Find the cc-hive project directory
+# Prevent multiple simultaneous launches
+if [ -f "$LOCKFILE" ]; then
+  LOCK_PID=$(cat "$LOCKFILE" 2>/dev/null)
+  if [ -n "$LOCK_PID" ] && kill -0 "$LOCK_PID" 2>/dev/null; then
+    # Another launch is in progress — just open the browser and exit
+    open "http://localhost:$PORT"
+    exit 0
+  fi
+  # Stale lock file — remove it
+  rm -f "$LOCKFILE"
+fi
+echo $$ > "$LOCKFILE"
+trap "rm -f '$LOCKFILE'" EXIT
+
+# If the server is already running, just open the browser
+if curl -s --max-time 2 "http://localhost:$PORT" > /dev/null 2>&1; then
+  open "http://localhost:$PORT"
+  exit 0
+fi
+
+# Find the Hive project directory
 # 1. Check if CCHIVE_DIR is set
 # 2. Check common locations
 # 3. Check relative to the app bundle (dev mode)
@@ -23,18 +44,12 @@ else
   # Try relative to app bundle (works when app is inside the project)
   SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
   CANDIDATE="$(cd "$SCRIPT_DIR/../../.." 2>/dev/null && pwd)"
-  if [ -f "$CANDIDATE/package.json" ] && grep -q "cc-hive" "$CANDIDATE/package.json" 2>/dev/null; then
+  if [ -f "$CANDIDATE/package.json" ] && grep -q '"hive"\|cc-hive' "$CANDIDATE/package.json" 2>/dev/null; then
     HIVE_DIR="$CANDIDATE"
   else
-    osascript -e 'display alert "Hive" message "Could not find the Hive project directory. Create ~/.cc-hive-path with the path to your Hive installation." as critical'
+    osascript -e 'display alert "Hive" message "Could not find the Hive project directory. Create ~/.hive-path with the path to your Hive installation." as critical'
     exit 1
   fi
-fi
-
-# Check if cc-hive is already running on this port
-if curl -s "http://localhost:$PORT" > /dev/null 2>&1; then
-  open "http://localhost:$PORT"
-  exit 0
 fi
 
 # Find node
@@ -62,10 +77,18 @@ fi
 npx next start -p $PORT &
 SERVER_PID=$!
 
+# Clean up both lockfile and server on exit
+trap "kill $SERVER_PID 2>/dev/null; rm -f '$LOCKFILE'" EXIT
+
 # Wait for server to be ready
 for i in $(seq 1 30); do
-  if curl -s "http://localhost:$PORT" > /dev/null 2>&1; then
+  if curl -s --max-time 2 "http://localhost:$PORT" > /dev/null 2>&1; then
     break
+  fi
+  # If the server process died, bail out
+  if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+    osascript -e 'display alert "Hive" message "Server failed to start. Check that port 3333 is not in use." as critical'
+    exit 1
   fi
   sleep 0.5
 done
@@ -73,6 +96,4 @@ done
 # Open in browser
 open "http://localhost:$PORT"
 
-# Keep alive — when the app is quit, kill the server
-trap "kill $SERVER_PID 2>/dev/null" EXIT
 wait $SERVER_PID

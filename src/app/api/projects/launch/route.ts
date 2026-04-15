@@ -12,6 +12,55 @@ const ALLOWED_COMMANDS: Record<string, string> = {
   "cursor": "cursor .",
 };
 
+function focusMacOS(pid: number) {
+  // Find the TTY for the given PID, then tell Terminal.app to focus that tab
+  const { execSync } = require("child_process");
+  let tty: string;
+  try {
+    tty = execSync(`ps -o tty= -p ${pid}`, { encoding: "utf-8" }).trim();
+  } catch {
+    // PID not found — fall back to just activating Terminal
+    spawn("osascript", ["-e", 'tell application "Terminal" to activate'], {
+      detached: true,
+      stdio: "ignore",
+    }).unref();
+    return;
+  }
+  if (!tty || tty === "??") {
+    spawn("osascript", ["-e", 'tell application "Terminal" to activate'], {
+      detached: true,
+      stdio: "ignore",
+    }).unref();
+    return;
+  }
+  const devTTY = `/dev/${tty}`;
+  const script = `
+    on run argv
+      set targetTTY to item 1 of argv
+      tell application "Terminal"
+        repeat with w in windows
+          set tabIdx to 0
+          repeat with t in tabs of w
+            set tabIdx to tabIdx + 1
+            if tty of t is targetTTY then
+              set selected tab of w to t
+              set index of w to 1
+              activate
+              return
+            end if
+          end repeat
+        end repeat
+        -- TTY not found in any tab, just activate
+        activate
+      end tell
+    end run
+  `;
+  spawn("osascript", ["-e", script, "--", devTTY], {
+    detached: true,
+    stdio: "ignore",
+  }).unref();
+}
+
 function launchMacOS(projectPath: string, shell: string) {
   // Pass projectPath and shell as separate osascript arguments to avoid injection.
   // In AppleScript, `item N of argv` retrieves positional arguments passed via --.
@@ -71,7 +120,24 @@ function launchWindows(projectPath: string, shell: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const { path: rawPath, command } = await req.json();
+  const { path: rawPath, command, pid } = await req.json();
+
+  // Focus mode: jump to an existing terminal session by PID
+  if (command === "focus" && pid) {
+    try {
+      const platform = process.platform;
+      if (platform === "darwin") {
+        focusMacOS(Number(pid));
+      } else {
+        // On other platforms, just open a new terminal (no reliable focus mechanism)
+        return NextResponse.json({ error: "focus not supported on this platform" }, { status: 400 });
+      }
+      return NextResponse.json({ ok: true, platform });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "unknown error";
+      return NextResponse.json({ error: message }, { status: 500 });
+    }
+  }
 
   if (!rawPath || typeof rawPath !== "string") {
     return NextResponse.json({ error: "path required" }, { status: 400 });
