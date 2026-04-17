@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 const ALLOWED_COMMANDS: Record<string, string> = {
   claude: "claude",
+  "claude-accept-edits": "claude --permission-mode acceptEdits",
   "claude-hierarchical": "claude --dangerously-skip-permissions",
   "code": "code .",
   "cursor": "cursor .",

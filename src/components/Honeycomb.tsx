@@ -394,6 +394,14 @@ export default function Honeycomb() {
               {launchingNew ? "Opening..." : "New session"}
             </button>
             <button
+              onClick={() => startNewSession("claude-accept-edits")}
+              disabled={launchingNew}
+              className="px-2 py-1.5 text-[10px] text-amber-400/70 bg-amber-500/5 border border-l-0 border-amber-500/30 hover:bg-amber-500/15 hover:text-amber-400 hover:border-amber-500/50 transition-colors disabled:opacity-50"
+              title="claude --permission-mode acceptEdits"
+            >
+              Auto-accept
+            </button>
+            <button
               onClick={() => startNewSession("claude-hierarchical")}
               disabled={launchingNew}
               className="px-2 py-1.5 text-[10px] text-amber-400/70 bg-amber-500/5 border border-l-0 border-amber-500/30 rounded-r-lg hover:bg-amber-500/15 hover:text-amber-400 hover:border-amber-500/50 transition-colors disabled:opacity-50"

@@ -327,6 +327,14 @@ export default function ProjectDrawer({
                 {launching ? "Opening..." : "Claude Code"}
               </button>
               <button
+                onClick={() => launchProject("claude-accept-edits")}
+                disabled={launching}
+                className="px-3 py-3 text-[10px] text-amber-400/60 bg-amber-500/5 rounded-lg border border-amber-500/15 hover:border-amber-500/40 hover:text-amber-400 transition-colors disabled:opacity-50 leading-tight"
+                title="claude --permission-mode acceptEdits"
+              >
+                Auto-<br />accept
+              </button>
+              <button
                 onClick={() => launchProject("claude-hierarchical")}
                 disabled={launching}
                 className="px-3 py-3 text-[10px] text-amber-400/60 bg-amber-500/5 rounded-lg border border-amber-500/15 hover:border-amber-500/40 hover:text-amber-400 transition-colors disabled:opacity-50 leading-tight"
