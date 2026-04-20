@@ -73,27 +73,27 @@ if [ ! -d ".next" ]; then
   npm run build 2>&1
 fi
 
-# Start server in background
-npx next start -p $PORT &
+# Start server detached so it survives after this launcher exits.
+# The launcher must exit quickly — otherwise macOS keeps this bash process
+# registered as the running app instance, and clicking the dock icon again
+# just bounces (bash can't respond to NSApplication reopen events).
+LOGFILE="/tmp/hive-server.log"
+nohup npx next start -p $PORT > "$LOGFILE" 2>&1 </dev/null &
 SERVER_PID=$!
-
-# Clean up both lockfile and server on exit
-trap "kill $SERVER_PID 2>/dev/null; rm -f '$LOCKFILE'" EXIT
+disown $SERVER_PID 2>/dev/null
 
 # Wait for server to be ready
 for i in $(seq 1 30); do
   if curl -s --max-time 2 "http://localhost:$PORT" > /dev/null 2>&1; then
     break
   fi
-  # If the server process died, bail out
   if ! kill -0 "$SERVER_PID" 2>/dev/null; then
-    osascript -e 'display alert "Hive" message "Server failed to start. Check that port 3333 is not in use." as critical'
+    osascript -e 'display alert "Hive" message "Server failed to start. Check that port 3333 is not in use, or see /tmp/hive-server.log" as critical'
     exit 1
   fi
   sleep 0.5
 done
 
-# Open in browser
+# Open in browser and exit — server keeps running in the background.
 open "http://localhost:$PORT"
-
-wait $SERVER_PID
+exit 0
