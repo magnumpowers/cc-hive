@@ -66,7 +66,7 @@ export default function Honeycomb() {
   const [showSearch, setShowSearch] = useState(false);
   const [launchingNew, setLaunchingNew] = useState(false);
 
-  async function startNewSession(commandKey: "claude" | "claude-hierarchical") {
+  async function startNewSession(commandKey: "claude" | "claude-accept-edits" | "claude-hierarchical") {
     setLaunchingNew(true);
     try {
       const res = await fetch("/api/projects/launch", {
